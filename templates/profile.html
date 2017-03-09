@@ -1,0 +1,36 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="container">
+    <div class="col-md-12 single-main">
+        <h1>Username : {{user.username}}</h1>
+        <h1>Name : {{user.name}}</h1>
+        <h1>E-Mail: {{user.email}}</h1>
+        <hr>
+        <h1><strong>My Posts</strong></h1>
+        <br>
+        {% for post in posts %}
+        <div class="jumbotron">
+            <div class="page-header">
+                <h1><a href="/post/{{post.key().id()}}">{{post.title}}</a>
+                    <small>from {{post.username}}</small>
+                </h1>
+                <h5>{{post.last_modified.strftime("%A %d. %B %Y") | safe }}</h5>
+            </div>
+            <hr>
+            <div class="single-grid">
+                {{post.content | safe | truncate(length=600, killwords=True)}} <a href="/post/{{post.key().id()}}">read
+                more</a>
+            </div>
+
+
+            {% if privs :%}
+            <br>
+            <a class="btn btn-primary" role="button" href="/editpost/{{post.key().id()}}">Edit</a>
+            <a class="btn btn-danger" role="button" href="/deletepost/{{post.key().id()}}">Delete</a>
+
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

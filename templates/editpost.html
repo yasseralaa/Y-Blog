@@ -1,0 +1,26 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="span12">
+            {% if error %}
+            <p class="alert alert-danger">{{error}}</p>
+            {% endif %}
+            <form method="post" class="form-group" action="/editpost">
+                <input type="hidden" name="name" value="{{post.key().id()}}"/>
+                <div class="form-group">
+                    <label>Post Title:</label>
+                    <input type="text" name="title" value="{{post.title}}" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Content:</label>
+                    <textarea class="form-control" name="content" rows="5" required>{{post.content}}</textarea>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Post" class="btn btn-primary">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

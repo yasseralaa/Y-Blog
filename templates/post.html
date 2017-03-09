@@ -1,0 +1,65 @@
+{% extends "index.html" %}
+{% block content %}
+
+<div class="single">
+    <div class="container">
+        <div class="col-md-12 single-main">
+
+            <div class="page-header">
+                <h1>{{post.title}}
+                    <small>from {{post.username}}</small>
+                </h1>
+                <h5>{{post.last_modified.strftime("%A %d. %B %Y") | safe }}</h5>
+            </div>
+            <div class="single-grid">
+                <p> {{post.content | safe}}</p>
+            </div>
+
+
+            {% if username != post.username :%}
+            {% if liked.liked == "true" :%}
+            <h2><strong>{{likes_count}} <a href="/like/{{post.key().id()}}"><span
+                    class="glyphicon glyphicon-thumbs-down"></span></a></strong>
+                | {{comments_count}} <u>comments</u></h2>
+            {%endif%}
+            {% if liked.liked != "true" :%}
+            <h2><strong>{{likes_count}} <a href="/like/{{post.key().id()}}"><span
+                    class="glyphicon glyphicon-thumbs-up"></span></a></strong> | {{comments_count}} <u>comments</u></h2>
+            {%endif%}
+            {% endif %}
+            {% if username == post.username :%}
+            <h2><strong>{{likes_count}} </strong> likes | <strong>{{comments_count}} </strong> <u>comments</u></h2>
+            <br>
+            {%endif%}
+
+            {% if username == post.username :%}
+            <a class="btn btn-primary" role="button" href="/editpost/{{post.key().id()}}">Edit</a>
+            <a class="btn btn-danger" role="button" href="/deletepost/{{post.key().id()}}">Delete</a>
+            {% endif %}
+            <hr>
+            <div class="content-form">
+                <h3>Leave a comment</h3>
+                <form method="post" class="form-group" action="/comment/{{post.key().id()}}">
+                    <textarea class="form-control" name="content" rows="5" required></textarea>
+                    <input type="submit" value="Comment" class="btn btn-primary">
+                </form>
+            </div>
+
+            {% for comment in comments %}
+            <div class="jumbotron">
+                <h2><strong>{{comment.username}}</strong></h2>
+                <br>
+                <h5> {{ comment.created.strftime("%A %d. %B %Y") | safe }}</h5>
+                <hr>
+                <p>{{comment.content | safe}}</p>
+            </div>
+            {% endfor %}
+
+        </div>
+
+
+    </div>
+</div>
+
+
+{% endblock %}
