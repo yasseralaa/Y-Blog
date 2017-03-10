@@ -11,7 +11,8 @@
     - A form to submit new entries.
     - Blog posts have their own page.
     - Login, logout and registration forms with validation
-    - Add, Edit and delete autherized posts
+    - Add, Edit and delete authorized posts
+    - Add, Edit and delete authorized comments
     - Like, Unlike and comments on posts
 
 **Features**

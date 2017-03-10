@@ -1,0 +1,25 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="span12">
+            {% if error %}
+            <p class="alert alert-danger">{{error}}</p>
+            {% endif %}
+            <form method="post" class="form-group" action="/editcomment">
+                <input type="hidden" name="name" value="{{comment.key().id()}}"/>
+                <input type="hidden" name="post" value="{{post.key().id()}}"/>
+                <div class="form-group">
+                    <label>Comment:</label>
+                    <textarea class="form-control" name="content" rows="5" required>{{comment.content}}</textarea>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Edit Comment" class="btn btn-primary">
+                    <a class="btn btn-info" role="button" href="/post/{{post.key().id()}}">Cancel</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

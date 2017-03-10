@@ -123,9 +123,11 @@ class AddPost(BlogHandler):
         if generics.LOGGEDIN:
             self.render('addpost.html')
         else:
-            self.render('home.html')
+            self.redirect('/')
 
     def post(self):
+        if not generics.LOGGEDIN:
+            self.redirect('/')
         have_error = False
         self.title = self.request.get('title')
         self.contnet = self.request.get('content')
@@ -154,9 +156,11 @@ class EditPost(BlogHandler):
             post = db.get(key)
             self.render('editpost.html', post=post)
         else:
-            self.render('home.html')
+            self.redirect('/')
 
     def post(self):
+        if not generics.LOGGEDIN:
+            self.redirect('/')
         have_error = False
         mykey = self.request.get('name')
         self.title = self.request.get('title')
@@ -173,9 +177,10 @@ class EditPost(BlogHandler):
         else:
             key = db.Key.from_path('Post', int(mykey), parent=blog_key())
             post = db.get(key)
-            post.title = self.title
-            post.content = self.contnet
-            post.put()
+            if post and generics.USERNAME == post.username:
+                post.title = self.title
+                post.content = self.contnet
+                post.put()
             self.redirect('profile?username=' + str(generics.USERNAME))
 
 
@@ -184,10 +189,12 @@ class DeletePost(BlogHandler):
         if generics.LOGGEDIN:
             mykey = key
             key = db.Key.from_path('Post', int(mykey), parent=blog_key())
-            db.get(key).delete()
+            todelete = db.get(key)
+            if todelete and generics.USERNAME == todelete.username:
+                todelete.delete()
             self.redirect('/profile?username=' + str(generics.USERNAME))
         else:
-            self.render('home.html')
+            self.redirect('/')
 
 
 class Posts(BlogHandler):
@@ -245,10 +252,14 @@ class Like(BlogHandler):
                     result.liked = "true"
                 result.put()
             else:
-                like = Likes(parent=likes_key(),
-                             username=generics.USERNAME,
-                             liked="true", post_id=post_id)
-                like.put()
+                mykey = post_id
+                key = db.Key.from_path('Post', int(mykey), parent=blog_key())
+                post = db.get(key)
+                if post.username != str(generics.USERNAME):
+                    like = Likes(parent=likes_key(),
+                                 username=generics.USERNAME,
+                                 liked="true", post_id=post_id)
+                    like.put()
 
             self.redirect('/post/' + str(post_id))
         else:
@@ -281,6 +292,65 @@ class Comment(BlogHandler):
             self.redirect('/post/' + str(post_id))
         else:
             self.redirect('/')
+
+
+class DeleteComment(BlogHandler):
+    def get(self, post_id, comment_id):
+        if generics.LOGGEDIN:
+            mykey = comment_id
+            key = db.Key.from_path('Comments', int(mykey),
+                                   parent=comments_key())
+            todelete = db.get(key)
+            if todelete and generics.USERNAME == todelete.username:
+                todelete.delete()
+                self.redirect('/post/' + str(post_id))
+        else:
+            self.redirect('/')
+
+
+class EditComment(BlogHandler):
+    def get(self, post_id, comment_id):
+        if generics.LOGGEDIN:
+            mykey = post_id
+            key = db.Key.from_path('Post', int(mykey), parent=blog_key())
+            post = db.get(key)
+
+            commentkey = comment_id
+            key = db.Key.from_path('Comments', int(commentkey),
+                                   parent=comments_key())
+            comment = db.get(key)
+            self.render('editcomment.html', post=post, comment=comment)
+        else:
+            self.redirect('/')
+
+    def post(self):
+        if not generics.LOGGEDIN:
+            self.redirect('/')
+        have_error = False
+        mykey = self.request.get('name')
+        postkey = self.request.get('post')
+        self.contnet = self.request.get('content')
+
+        if self.contnet.strip():
+            have_error = False
+        else:
+            have_error = True
+
+        if have_error:
+            msg = 'comment required.'
+            self.render('editcomment.html', error=msg)
+        else:
+            key = db.Key.from_path('Comments', int(mykey),
+                                   parent=comments_key())
+            comment = db.get(key)
+            if comment and generics.USERNAME == comment.username:
+                comment.content = self.contnet
+                comment.put()
+
+            if postkey:
+                self.redirect('/post/' + str(postkey))
+            else:
+                self.redirect('profile?username=' + str(generics.USERNAME))
 
 
 # user stuff
@@ -487,6 +557,10 @@ app = webapp2.WSGIApplication([
     ('/editpost/([0-9]+)', EditPost),
     ('/deletepost', DeletePost),
     ('/deletepost/([0-9]+)', DeletePost),
+    ('/editcomment', EditComment),
+    ('/editcomment/([0-9]+)/([0-9]+)', EditComment),
+    ('/deletecomment', DeleteComment),
+    ('/deletecomment/([0-9]+)/([0-9]+)', DeleteComment),
     ('/posts', Posts),
     ('/post/([0-9]+)', SinglePost),
     ('/like/([0-9]+)', Like),

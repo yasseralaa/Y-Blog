@@ -52,6 +52,10 @@
                 <h5> {{ comment.created.strftime("%A %d. %B %Y") | safe }}</h5>
                 <hr>
                 <p>{{comment.content | safe}}</p>
+                {% if username == comment.username :%}
+                <a class="btn btn-primary" role="button" href="/editcomment/{{post.key().id()}}/{{comment.key().id()}}">Edit</a>
+                <a class="btn btn-danger" role="button" href="/deletecomment/{{post.key().id()}}/{{comment.key().id()}}">Delete</a>
+                {% endif %}
             </div>
             {% endfor %}
 
